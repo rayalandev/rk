@@ -1,0 +1,10 @@
+/bin/
+/data/
+*.exe
+
+*.ilk
+
+*.obj
+
+*.pdb
+.vs
