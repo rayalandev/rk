@@ -97,7 +97,7 @@ extern "C" {
 #define MOUSE_MIDDLE       0x04
 #define MOUSE_FORWARD      0x05
 #define MOUSE_BACKWARD       0x06
-#define KEY_BACK           0x08
+#define KEY_BACKSPACE           0x08
 #define KEY_TAB            0x09
 #define KEY_CLEAR          0x0C
 #define KEY_ENTER         0x0D
@@ -118,8 +118,8 @@ extern "C" {
 #define KEY_ACCEPT         0x1E
 #define KEY_MODECHANGE     0x1F
 #define KEY_SPACE          0x20
-#define KEY_PRIOR          0x21
-#define KEY_NEXT           0x22
+#define KEY_PAGE_UP          0x21
+#define KEY_PAGE_DOWN        0x22
 #define KEY_END            0x23
 #define KEY_HOME           0x24
 #define KEY_LEFT           0x25
@@ -131,7 +131,7 @@ extern "C" {
 #define KEY_NUMENTER        0x2B
 #define KEY_SNAPSHOT       0x2C
 #define KEY_INS         0x2D
-#define KEY_DEL         0x2E
+#define KEY_DELETE         0x2E
 #define KEY_HELP           0x2F
 #define KEY_LSUPER           0x5B
 #define KEY_RSUPER           0x5C
@@ -258,7 +258,7 @@ extern "C" {
 #define KEY_OEM_CLEAR      0xFF
 
 	typedef struct Sys_Memory {
-		void *base;
+		void *ptr;
 		size_t alloc_size;
 		size_t usable_size;
 		uint64_t flags;
@@ -275,7 +275,7 @@ extern "C" {
 		int monitor;
 		int fullscreen;
 		const char *title;
-		size_t memory_size;
+		Sys_Memory memory;
 		unsigned char color_bits, depth_bits;
 	} Sys_Config;
 
@@ -298,6 +298,7 @@ extern "C" {
 		float dt;
 		// system
 		int minimized;
+		int focused;
 		int running;
 	} Sys_State;
 
@@ -312,7 +313,7 @@ extern "C" {
 	SYS_DEF void sys_quit(void);
 	SYS_DEF double sys_time_now(void);
 	SYS_DEF void sys_sleep(int ms);
-	SYS_DEF Sys_File sys_file_open(char *file_name);
+	SYS_DEF Sys_File sys_file_open(const char *file_name);
 	SYS_DEF void sys_file_close(Sys_File file);
 	SYS_DEF uint64_t sys_file_read(Sys_File file, uint64_t offset, uint64_t size, void *destination);
 	SYS_DEF uint64_t sys_file_write(Sys_File file, uint64_t offset, uint64_t size, void *source);
@@ -403,20 +404,20 @@ extern "C" {
 		const size_t alloc_size = size;
 #endif
 
-		memory.base = VirtualAlloc(0, alloc_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-		sys_assert(memory.base);
+		memory.ptr = VirtualAlloc(0, alloc_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+		sys_assert(memory.ptr);
 
-		VirtualQuery(memory.base, &info, sizeof(MEMORY_BASIC_INFORMATION));
+		VirtualQuery(memory.ptr, &info, sizeof(MEMORY_BASIC_INFORMATION));
 		memory.alloc_size = info.RegionSize;
 		memory.usable_size = info.RegionSize;
 
 #ifdef SYS_DEBUG
 		DWORD old_protect = 0;
-		unsigned char *p = (unsigned char *)memory.base;
-		VirtualProtect(memory.base, 4096, PAGE_NOACCESS, &old_protect);
+		unsigned char *p = (unsigned char *)memory.ptr;
+		VirtualProtect(memory.ptr, 4096, PAGE_NOACCESS, &old_protect);
 		VirtualProtect(p + memory.alloc_size - 4096, 4096, PAGE_NOACCESS, &old_protect);
 		memory.usable_size = memory.alloc_size - 8192;
-		memory.base = (void*)(p + 4096);
+		memory.ptr = (void*)(p + 4096);
 #endif
 
 		return memory;
@@ -425,15 +426,15 @@ extern "C" {
 	SYS_DEF void sys_free(Sys_Memory memory) {
 		// todo(rayalan): asserts
 #ifdef SYS_DEBUG
-		unsigned char *p = (unsigned char *)memory.base;
+		unsigned char *p = (unsigned char *)memory.ptr;
 		sys_assert(p);
 		VirtualFree(p - 4096, memory.alloc_size, MEM_RELEASE);
 #else
-		VirtualFree(memory.base, memory.alloc_size, MEM_RELEASE);
+		VirtualFree(memory.ptr, memory.alloc_size, MEM_RELEASE);
 #endif
 	}
 
-	SYS_DEF Sys_File sys_file_open(char* file_name) {
+	SYS_DEF Sys_File sys_file_open(const char* file_name) {
 		Sys_File file = { 0 };
 		HANDLE handle = CreateFileA(file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_ALWAYS, 0, 0);
 		if (handle != INVALID_HANDLE_VALUE) {
@@ -514,7 +515,7 @@ extern "C" {
 	}
 
 	SYS_DEF void sys_message_box(const char *title, const char *message) {
-		MessageBoxA(__sys_state.window, message, title, MB_OK);
+		MessageBoxA((HWND)__sys_state.window, message, title, MB_OK);
 	}
 
 	SYS_DEF void sys_error(const char *message) {
@@ -524,10 +525,10 @@ extern "C" {
 
 	static void sys_update_window(LPRECT rect) {
 		if (__sys_state.fullscreen) {
-			LONG style = GetWindowLong(__sys_state.window, GWL_STYLE);
-			SetWindowLong(__sys_state.window, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
+			LONG style = GetWindowLong((HWND)__sys_state.window, GWL_STYLE);
+			SetWindowLong((HWND)__sys_state.window, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
 			SetWindowPos(
-				__sys_state.window, HWND_TOP,
+				(HWND)__sys_state.window, HWND_TOP,
 				rect->left, rect->top,
 				rect->right - rect->left,
 				rect->bottom - rect->top,
@@ -544,7 +545,7 @@ extern "C" {
 #endif
 				; // NOTE(rayalan): maybe this is cleaner if I define SYS_MAXIMIZE_BIT to or's result
 
-			SetWindowLongPtr(__sys_state.window, GWL_STYLE, style);
+			SetWindowLongPtr((HWND)__sys_state.window, GWL_STYLE, style);
 
 			RECT adjust = { 0 };
 			adjust.right = __sys_state.width;
@@ -552,7 +553,7 @@ extern "C" {
 			AdjustWindowRect(&adjust, style, FALSE);
 
 			SetWindowPos(
-				__sys_state.window, 0,
+				(HWND)__sys_state.window, 0,
 				rect->left + (rect->right - rect->left - adjust.right - adjust.left) / 2,
 				rect->top + (rect->bottom - rect->top - adjust.bottom + adjust.top) / 2,
 				adjust.right - adjust.left, adjust.bottom - adjust.top,
@@ -590,8 +591,8 @@ extern "C" {
 		EnumDisplayMonitors(NULL, NULL, sys_monitor_proc, monitor);
 	}
 
-	static void sys_create_gl_context() {
-		HDC device_context = GetDC(__sys_state.window);
+	static void sys_create_gl_context(void) {
+		HDC device_context = GetDC((HWND)__sys_state.window);
 		HGLRC share_context = 0; // todo(rayalan): do something with this?
 
 		PIXELFORMATDESCRIPTOR pfd;
@@ -634,9 +635,9 @@ extern "C" {
 
 		__wglSwapIntervalEXT(1); // TODO(rayalan):
 
-		wglMakeCurrent(device_context, __sys_state.gfx_context);
+		wglMakeCurrent(device_context, (HGLRC)__sys_state.gfx_context);
 		wglDeleteContext(temp_context);
-		ReleaseDC(__sys_state.window, device_context);
+		ReleaseDC((HWND)__sys_state.window, device_context);
 	}
 
 	LRESULT __stdcall sys_win_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
@@ -650,20 +651,27 @@ extern "C" {
 #ifdef SYS_QUIT_PROC
 			SYS_QUIT_PROC(&__sys_state);
 #endif
-			if (__sys_state.memory.base) {
+			if (__sys_state.memory.ptr) {
 				sys_free(__sys_state.memory);
 			}
 
 			wglMakeCurrent(0, 0);
-			wglDeleteContext(__sys_state.gfx_context);
+			wglDeleteContext((HGLRC)__sys_state.gfx_context);
 		} break;
 		case WM_SIZE: {
 			__sys_state.width = (int)LOWORD(lparam);
 			__sys_state.height = (int)HIWORD(lparam);
 			__sys_state.minimized = (wparam == SIZE_MINIMIZED) ? 1 : 0;
-			HDC device_context = GetDC(__sys_state.window);
+			HDC device_context = GetDC((HWND)__sys_state.window);
 			SwapBuffers(device_context);
-			ReleaseDC(__sys_state.window, device_context);
+			ReleaseDC((HWND)__sys_state.window, device_context);
+		} break;
+		case WM_SETFOCUS: {
+			__sys_state.focused = true;
+		} break;
+		case WM_KILLFOCUS: {
+			ZeroMemory(__sys_state.input_state, SYS_INPUT_STATE_SIZE); // memset
+			__sys_state.focused = false;
 		} break;
 		case WM_INPUT: {
 			UINT size;
@@ -796,7 +804,6 @@ extern "C" {
 						sys_toggle_fullscreen();
 				}
 #endif
-
 				__sys_state.input_state[virtual_key] = !(flags & RI_KEY_BREAK);
 			}
 
@@ -938,13 +945,11 @@ extern "C" {
 		cfg = sys_default_config();
 		sys_unused(cmd_line);
 #endif
-		if (cfg.memory_size) {
-			__sys_state.memory = sys_alloc(cfg.memory_size, 0);
-		}
+		__sys_state.memory = cfg.memory;
 
 		sys_set_title(cfg.title);
 		sys_set_window_params(cfg.width, cfg.height, cfg.monitor, cfg.fullscreen);
-		ShowWindow(__sys_state.window, SW_SHOW);
+		ShowWindow((HWND)__sys_state.window, SW_SHOW);
 		__sys_state.running = 1;
 
 		MSG msg = { 0 };
@@ -955,13 +960,13 @@ extern "C" {
 		while (__sys_state.running) {
 			t1 = sys_time_now();
 			delta = t1 - t2;
-			__sys_state.dt = (float)(1000.0f * (t1 - t2));
+			__sys_state.dt = t1 - t2;
 			__sys_state.mouse.dx = 0;
 			__sys_state.mouse.dy = 0;
 			__sys_state.mouse.dw = 0;
 			POINT point = { 0 };
 			GetCursorPos(&point);
-			ScreenToClient(__sys_state.window, &point);
+			ScreenToClient((HWND)__sys_state.window, &point);
 			__sys_state.mouse.x = (int)point.x;
 			__sys_state.mouse.y = (int)point.y;
 
@@ -973,13 +978,13 @@ extern "C" {
 #ifdef SYS_LOOP_PROC
 			SYS_LOOP_PROC(&__sys_state);
 #endif
-			HDC device_context = GetDC(__sys_state.window);
+			HDC device_context = GetDC((HWND)__sys_state.window);
 			SwapBuffers(device_context);
-			ReleaseDC(__sys_state.window, device_context);
+			ReleaseDC((HWND)__sys_state.window, device_context);
 			t2 = t1;
 		}
 
-		DestroyWindow(__sys_state.window);
+		DestroyWindow((HWND)__sys_state.window);
 
 		return 0;
 	}
@@ -989,20 +994,20 @@ extern "C" {
 	}
 
 	SYS_DEF void sys_set_title(const char *title) {
-		SetWindowTextA(__sys_state.window, title);
+		SetWindowTextA((HWND)__sys_state.window, title);
 	}
 
 	SYS_DEF void sys_toggle_fullscreen(void) {
 		static WINDOWPLACEMENT prev_pos = { sizeof(prev_pos) };
-		DWORD style = (DWORD)GetWindowLong(__sys_state.window, GWL_STYLE);
+		DWORD style = (DWORD)GetWindowLong((HWND)__sys_state.window, GWL_STYLE);
 		if (style & WS_OVERLAPPEDWINDOW) {
 			MONITORINFO info = { sizeof(info) };
-			if (GetWindowPlacement(__sys_state.window, &prev_pos) &&
-				GetMonitorInfo(MonitorFromWindow(__sys_state.window,
+			if (GetWindowPlacement((HWND)__sys_state.window, &prev_pos) &&
+				GetMonitorInfo(MonitorFromWindow((HWND)__sys_state.window,
 					MONITOR_DEFAULTTOPRIMARY), &info)) {
-				SetWindowLong(__sys_state.window, GWL_STYLE,
+				SetWindowLong((HWND)__sys_state.window, GWL_STYLE,
 					(LONG)style & ~WS_OVERLAPPEDWINDOW);
-				SetWindowPos(__sys_state.window, HWND_TOP,
+				SetWindowPos((HWND)__sys_state.window, HWND_TOP,
 					info.rcMonitor.left, info.rcMonitor.top,
 					info.rcMonitor.right - info.rcMonitor.left,
 					info.rcMonitor.bottom - info.rcMonitor.top,
@@ -1010,10 +1015,10 @@ extern "C" {
 			}
 		}
 		else {
-			SetWindowLong(__sys_state.window, GWL_STYLE,
+			SetWindowLong((HWND)__sys_state.window, GWL_STYLE,
 				(LONG)style | WS_OVERLAPPEDWINDOW);
-			SetWindowPlacement(__sys_state.window, &prev_pos);
-			SetWindowPos(__sys_state.window, NULL, 0, 0, 0, 0,
+			SetWindowPlacement((HWND)__sys_state.window, &prev_pos);
+			SetWindowPos((HWND)__sys_state.window, NULL, 0, 0, 0, 0,
 				SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
 				SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
