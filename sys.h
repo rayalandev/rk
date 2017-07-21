@@ -94,171 +94,171 @@ extern "C" {
 //
 //=============================================================================
 // TODO(rayalan): this may depend on os
-#define MOUSE_LEFT        0x01
-#define MOUSE_RIGHT      0x02
-#define KEY_CANCEL       0x03
-#define MOUSE_MIDDLE       0x04
-#define MOUSE_FORWARD      0x05
-#define MOUSE_BACKWARD       0x06
-#define KEY_BACKSPACE           0x08
-#define KEY_TAB            0x09
-#define KEY_CLEAR          0x0C
-#define KEY_ENTER         0x0D
-#define KEY_SHIFT          0x10
-#define KEY_CONTROL        0x11
-#define KEY_ALT           0x12
-#define KEY_PAUSE          0x13
-#define KEY_CAPITAL        0x14
-#define KEY_KANA           0x15
-#define KEY_HANGUL         0x15
-#define KEY_JUNJA          0x17
-#define KEY_FINAL          0x18
-#define KEY_HANJA          0x19
-#define KEY_KANJI          0x19
-#define KEY_ESC         0x1B
-#define KEY_CONVERT        0x1C
-#define KEY_NONCONVERT     0x1D
-#define KEY_ACCEPT         0x1E
-#define KEY_MODECHANGE     0x1F
-#define KEY_SPACE          0x20
-#define KEY_PAGE_UP          0x21
-#define KEY_PAGE_DOWN        0x22
-#define KEY_END            0x23
-#define KEY_HOME           0x24
-#define KEY_LEFT           0x25
-#define KEY_UP             0x26
-#define KEY_RIGHT          0x27
-#define KEY_DOWN           0x28
-#define KEY_SELECT         0x29
-#define KEY_PRINT          0x2A
-#define KEY_NUMENTER        0x2B
-#define KEY_SNAPSHOT       0x2C
-#define KEY_INS         0x2D
-#define KEY_DELETE         0x2E
-#define KEY_HELP           0x2F
-#define KEY_LSUPER           0x5B
-#define KEY_RSUPER           0x5C
-#define KEY_APPS           0x5D
-#define KEY_SLEEP          0x5F
-#define KEY_NUMPAD0        0x60
-#define KEY_NUMPAD1        0x61
-#define KEY_NUMPAD2        0x62
-#define KEY_NUMPAD3        0x63
-#define KEY_NUMPAD4        0x64
-#define KEY_NUMPAD5        0x65
-#define KEY_NUMPAD6        0x66
-#define KEY_NUMPAD7        0x67
-#define KEY_NUMPAD8        0x68
-#define KEY_NUMPAD9        0x69
-#define KEY_MULTIPLY       0x6A
-#define KEY_ADD            0x6B
-#define KEY_SEPARATOR      0x6C
-#define KEY_SUBTRACT       0x6D
-#define KEY_DECIMAL        0x6E
-#define KEY_DIVIDE         0x6F
-#define KEY_F1             0x70
-#define KEY_F2             0x71
-#define KEY_F3             0x72
-#define KEY_F4             0x73
-#define KEY_F5             0x74
-#define KEY_F6             0x75
-#define KEY_F7             0x76
-#define KEY_F8             0x77
-#define KEY_F9             0x78
-#define KEY_F10            0x79
-#define KEY_F11            0x7A
-#define KEY_F12            0x7B
-#define KEY_F13            0x7C
-#define KEY_F14            0x7D
-#define KEY_F15            0x7E
-#define KEY_F16            0x7F
-#define KEY_F17            0x80
-#define KEY_F18            0x81
-#define KEY_F19            0x82
-#define KEY_F20            0x83
-#define KEY_F21            0x84
-#define KEY_F22            0x85
-#define KEY_F23            0x86
-#define KEY_F24            0x87
-#define KEY_NUMLOCK        0x90
-#define KEY_SCROLL         0x91
-#define KEY_OEM_NEC_EQUAL  0x92   // '=' key on numpad
-#define KEY_OEM_FJ_JISHO   0x92   // 'Dictionary' key
-#define KEY_OEM_FJ_MASSHOU 0x93   // 'Unregister word' key
-#define KEY_OEM_FJ_TOUROKU 0x94   // 'Register word' key
-#define KEY_OEM_FJ_LOYA    0x95   // 'Left OYAYUBI' key
-#define KEY_OEM_FJ_ROYA    	0x96   // 'Right OYAYUBI' key
-	// these aren't used by windows 
-#define MOUSE_BUTTON1       0x97
-#define MOUSE_BUTTON2       0x98
-#define MOUSE_BUTTON3       0x99
-#define MOUSE_BUTTON4       0x9A
-#define MOUSE_BUTTON5       0x9B
-#define KEY_LSHIFT         0xA0
-#define KEY_RSHIFT         0xA1
-#define KEY_LCONTROL       0xA2
-#define KEY_RCONTROL       0xA3
-#define KEY_LALT          0xA4
-#define KEY_RALT          		0xA5
-#define KEY_BROWSER_BACK        0xA6
-#define KEY_BROWSER_FORWARD     0xA7
-#define KEY_BROWSER_REFRESH     0xA8
-#define KEY_BROWSER_STOP        0xA9
-#define KEY_BROWSER_SEARCH      0xAA
-#define KEY_BROWSER_FAVORITES   0xAB
-#define KEY_BROWSER_HOME        0xAC
-#define KEY_VOLUME_MUTE         0xAD
-#define KEY_VOLUME_DOWN         0xAE
-#define KEY_VOLUME_UP           0xAF
-#define KEY_MEDIA_NEXT_TRACK    0xB0
-#define KEY_MEDIA_PREV_TRACK    0xB1
-#define KEY_MEDIA_STOP          0xB2
-#define KEY_MEDIA_PLAY_PAUSE    0xB3
-#define KEY_LAUNCH_MAIL         0xB4
-#define KEY_LAUNCH_MEDIA_SELECT 0xB5
-#define KEY_LAUNCH_APP1         0xB6
-#define KEY_LAUNCH_APP2         0xB7
-#define KEY_SEMICOLON          		0xBA   // ';:' for US
-#define KEY_PLUS 0xBB   // '+' any country
-#define KEY_COMMA      0xBC   // ',' any country
-#define KEY_MINUS 0xBD   // '-' any country
-#define KEY_PERIOD     0xBE   // '.' any country
-#define KEY_FORWARD_SLASH          0xBF   // '/?' for US
-#define KEY_TILDE          0xC0   // '`~' for US
-#define KEY_LEFT_BRACE          0xDB  //  '[{' for US
-#define KEY_BACK_FLASH 0xDC  //  '\|' for US
-#define KEY_RIGHT_BRACE          0xDD  //  ']}' for US
-#define KEY_QUOTATION_MARK          0xDE  //  ''"' for US
-#define KEY_OEM_8          0xDF
-#define KEY_OEM_AX         0xE1  //  'AX' key on Japanese AX kbd
-#define KEY_OEM_102        0xE2  //  "<>" or "\|" on RT 102-key kbd.
-#define KEY_ICO_HELP       0xE3  //  Help key on ICO
-#define KEY_ICO_00         0xE4  //  00 key on ICO
-#define KEY_PROCESSKEY     0xE5
-#define KEY_ICO_CLEAR      0xE6
-#define KEY_PACKET         0xE7
-#define KEY_OEM_RESET      0xE9
-#define KEY_OEM_JUMP       0xEA
-#define KEY_OEM_PA1        0xEB
-#define KEY_OEM_PA2        0xEC
-#define KEY_OEM_PA3        0xED
-#define KEY_OEM_WSCTRL     0xEE
-#define KEY_OEM_CUSEL      0xEF
-#define KEY_OEM_ATTN       0xF0
-#define KEY_OEM_FINISH     0xF1
-#define KEY_OEM_COPY       0xF2
-#define KEY_OEM_AUTO       0xF3
-#define KEY_OEM_ENLW       0xF4
-#define KEY_OEM_BACKTAB    0xF5
-#define KEY_ATTN           0xF6
-#define KEY_CRSEL          0xF7
-#define KEY_EXSEL          0xF8
-#define KEY_EREOF          0xF9
-#define KEY_PLAY           0xFA
-#define KEY_ZOOM           0xFB
-#define KEY_NONAME         0xFC
-#define KEY_PA1            0xFD
-#define KEY_OEM_CLEAR      0xFF
+#define SYS_MOUSE_LEFT        0x01
+#define SYS_MOUSE_RIGHT      0x02
+#define SYS_KEY_CANCEL       0x03
+#define SYS_MOUSE_MIDDLE       0x04
+#define SYS_MOUSE_FORWARD      0x05
+#define SYS_MOUSE_BACKWARD       0x06
+#define SYS_KEY_BACKSPACE           0x08
+#define SYS_KEY_TAB            0x09
+#define SYS_KEY_CLEAR          0x0C
+#define SYS_KEY_ENTER         0x0D
+#define SYS_KEY_SHIFT          0x10
+#define SYS_KEY_CONTROL        0x11
+#define SYS_KEY_ALT           0x12
+#define SYS_KEY_PAUSE          0x13
+#define SYS_KEY_CAPITAL        0x14
+#define SYS_KEY_KANA           0x15
+#define SYS_KEY_HANGUL         0x15
+#define SYS_KEY_JUNJA          0x17
+#define SYS_KEY_FINAL          0x18
+#define SYS_KEY_HANJA          0x19
+#define SYS_KEY_KANJI          0x19
+#define SYS_KEY_ESC         0x1B
+#define SYS_KEY_CONVERT        0x1C
+#define SYS_KEY_NONCONVERT     0x1D
+#define SYS_KEY_ACCEPT         0x1E
+#define SYS_KEY_MODECHANGE     0x1F
+#define SYS_KEY_SPACE          0x20
+#define SYS_KEY_PAGE_UP          0x21
+#define SYS_KEY_PAGE_DOWN        0x22
+#define SYS_KEY_END            0x23
+#define SYS_KEY_HOME           0x24
+#define SYS_KEY_LEFT           0x25
+#define SYS_KEY_UP             0x26
+#define SYS_KEY_RIGHT          0x27
+#define SYS_KEY_DOWN           0x28
+#define SYS_KEY_SELECT         0x29
+#define SYS_KEY_PRINT          0x2A
+#define SYS_KEY_NUMENTER        0x2B
+#define SYS_KEY_SNAPSHOT       0x2C
+#define SYS_KEY_INS         0x2D
+#define SYS_KEY_DELETE         0x2E
+#define SYS_KEY_HELP           0x2F
+#define SYS_KEY_LSUPER           0x5B
+#define SYS_KEY_RSUPER           0x5C
+#define SYS_KEY_APPS           0x5D
+#define SYS_KEY_SLEEP          0x5F
+#define SYS_KEY_NUMPAD0        0x60
+#define SYS_KEY_NUMPAD1        0x61
+#define SYS_KEY_NUMPAD2        0x62
+#define SYS_KEY_NUMPAD3        0x63
+#define SYS_KEY_NUMPAD4        0x64
+#define SYS_KEY_NUMPAD5        0x65
+#define SYS_KEY_NUMPAD6        0x66
+#define SYS_KEY_NUMPAD7        0x67
+#define SYS_KEY_NUMPAD8        0x68
+#define SYS_KEY_NUMPAD9        0x69
+#define SYS_KEY_MULTIPLY       0x6A
+#define SYS_KEY_ADD            0x6B
+#define SYS_KEY_SEPARATOR      0x6C
+#define SYS_KEY_SUBTRACT       0x6D
+#define SYS_KEY_DECIMAL        0x6E
+#define SYS_KEY_DIVIDE         0x6F
+#define SYS_KEY_F1             0x70
+#define SYS_KEY_F2             0x71
+#define SYS_KEY_F3             0x72
+#define SYS_KEY_F4             0x73
+#define SYS_KEY_F5             0x74
+#define SYS_KEY_F6             0x75
+#define SYS_KEY_F7             0x76
+#define SYS_KEY_F8             0x77
+#define SYS_KEY_F9             0x78
+#define SYS_KEY_F10            0x79
+#define SYS_KEY_F11            0x7A
+#define SYS_KEY_F12            0x7B
+#define SYS_KEY_F13            0x7C
+#define SYS_KEY_F14            0x7D
+#define SYS_KEY_F15            0x7E
+#define SYS_KEY_F16            0x7F
+#define SYS_KEY_F17            0x80
+#define SYS_KEY_F18            0x81
+#define SYS_KEY_F19            0x82
+#define SYS_KEY_F20            0x83
+#define SYS_KEY_F21            0x84
+#define SYS_KEY_F22            0x85
+#define SYS_KEY_F23            0x86
+#define SYS_KEY_F24            0x87
+#define SYS_KEY_NUMLOCK        0x90
+#define SYS_KEY_SCROLL         0x91
+#define SYS_KEY_OEM_NEC_EQUAL  0x92   // '=' key on numpad
+#define SYS_KEY_OEM_FJ_JISHO   0x92   // 'Dictionary' key
+#define SYS_KEY_OEM_FJ_MASSHOU 0x93   // 'Unregister word' key
+#define SYS_KEY_OEM_FJ_TOUROKU 0x94   // 'Register word' key
+#define SYS_KEY_OEM_FJ_LOYA    0x95   // 'Left OYAYUBI' key
+#define SYS_KEY_OEM_FJ_ROYA    	0x96   // 'Right OYAYUBI' key
+	// SYS_these aren't used by windows 
+#define SYS_MOUSE_BUTTON1       0x97
+#define SYS_MOUSE_BUTTON2       0x98
+#define SYS_MOUSE_BUTTON3       0x99
+#define SYS_MOUSE_BUTTON4       0x9A
+#define SYS_MOUSE_BUTTON5       0x9B
+#define SYS_KEY_LSHIFT         0xA0
+#define SYS_KEY_RSHIFT         0xA1
+#define SYS_KEY_LCONTROL       0xA2
+#define SYS_KEY_RCONTROL       0xA3
+#define SYS_KEY_LALT          0xA4
+#define SYS_KEY_RALT          		0xA5
+#define SYS_KEY_BROWSER_BACK        0xA6
+#define SYS_KEY_BROWSER_FORWARD     0xA7
+#define SYS_KEY_BROWSER_REFRESH     0xA8
+#define SYS_KEY_BROWSER_STOP        0xA9
+#define SYS_KEY_BROWSER_SEARCH      0xAA
+#define SYS_KEY_BROWSER_FAVORITES   0xAB
+#define SYS_KEY_BROWSER_HOME        0xAC
+#define SYS_KEY_VOLUME_MUTE         0xAD
+#define SYS_KEY_VOLUME_DOWN         0xAE
+#define SYS_KEY_VOLUME_UP           0xAF
+#define SYS_KEY_MEDIA_NEXT_TRACK    0xB0
+#define SYS_KEY_MEDIA_PREV_TRACK    0xB1
+#define SYS_KEY_MEDIA_STOP          0xB2
+#define SYS_KEY_MEDIA_PLAY_PAUSE    0xB3
+#define SYS_KEY_LAUNCH_MAIL         0xB4
+#define SYS_KEY_LAUNCH_MEDIA_SELECT 0xB5
+#define SYS_KEY_LAUNCH_APP1         0xB6
+#define SYS_KEY_LAUNCH_APP2         0xB7
+#define SYS_KEY_SEMICOLON          		0xBA   // ';:' for US
+#define SYS_KEY_PLUS 0xBB   // '+' any country
+#define SYS_KEY_COMMA      0xBC   // ',' any country
+#define SYS_KEY_MINUS 0xBD   // '-' any country
+#define SYS_KEY_PERIOD     0xBE   // '.' any country
+#define SYS_KEY_FORWARD_SLASH          0xBF   // '/?' for US
+#define SYS_KEY_TILDE          0xC0   // '`~' for US
+#define SYS_KEY_LEFT_BRACE          0xDB  //  '[{' for US
+#define SYS_KEY_BACK_FLASH 0xDC  //  '\|' for US
+#define SYS_KEY_RIGHT_BRACE          0xDD  //  ']}' for US
+#define SYS_KEY_QUOTATION_MARK          0xDE  //  ''"' for US
+#define SYS_KEY_OEM_8          0xDF
+#define SYS_KEY_OEM_AX         0xE1  //  'AX' key on Japanese AX kbd
+#define SYS_KEY_OEM_102        0xE2  //  "<>" or "\|" on RT 102-key kbd.
+#define SYS_KEY_ICO_HELP       0xE3  //  Help key on ICO
+#define SYS_KEY_ICO_00         0xE4  //  00 key on ICO
+#define SYS_KEY_PROCESSKEY     0xE5
+#define SYS_KEY_ICO_CLEAR      0xE6
+#define SYS_KEY_PACKET         0xE7
+#define SYS_KEY_OEM_RESET      0xE9
+#define SYS_KEY_OEM_JUMP       0xEA
+#define SYS_KEY_OEM_PA1        0xEB
+#define SYS_KEY_OEM_PA2        0xEC
+#define SYS_KEY_OEM_PA3        0xED
+#define SYS_KEY_OEM_WSCTRL     0xEE
+#define SYS_KEY_OEM_CUSEL      0xEF
+#define SYS_KEY_OEM_ATTN       0xF0
+#define SYS_KEY_OEM_FINISH     0xF1
+#define SYS_KEY_OEM_COPY       0xF2
+#define SYS_KEY_OEM_AUTO       0xF3
+#define SYS_KEY_OEM_ENLW       0xF4
+#define SYS_KEY_OEM_BACKTAB    0xF5
+#define SYS_KEY_ATTN           0xF6
+#define SYS_KEY_CRSEL          0xF7
+#define SYS_KEY_EXSEL          0xF8
+#define SYS_KEY_EREOF          0xF9
+#define SYS_KEY_PLAY           0xFA
+#define SYS_KEY_ZOOM           0xFB
+#define SYS_KEY_NONAME         0xFC
+#define SYS_KEY_PA1            0xFD
+#define SYS_KEY_OEM_CLEAR      0xFF
 
 typedef struct Sys_Memory {
 	void *ptr;
@@ -691,52 +691,52 @@ LRESULT __stdcall sys_win_proc(HWND window, UINT message, WPARAM wparam, LPARAM 
 				int flags = raw->data.mouse.usButtonFlags;
 
 				if (flags & RI_MOUSE_LEFT_BUTTON_DOWN) {
-					__sys_state.input_state[MOUSE_LEFT] = 1;
+					__sys_state.input_state[SYS_MOUSE_LEFT] = 1;
 				}
 				else if (flags & RI_MOUSE_LEFT_BUTTON_UP) {
-					__sys_state.input_state[MOUSE_LEFT] = 0;
+					__sys_state.input_state[SYS_MOUSE_LEFT] = 0;
 				}
 				else if (flags & RI_MOUSE_MIDDLE_BUTTON_DOWN) {
-					__sys_state.input_state[MOUSE_MIDDLE] = 1;
+					__sys_state.input_state[SYS_MOUSE_MIDDLE] = 1;
 				}
 				else if (flags & RI_MOUSE_MIDDLE_BUTTON_UP) {
-					__sys_state.input_state[MOUSE_MIDDLE] = 0;
+					__sys_state.input_state[SYS_MOUSE_MIDDLE] = 0;
 				}
 				else if (flags & RI_MOUSE_RIGHT_BUTTON_DOWN) {
-					__sys_state.input_state[MOUSE_RIGHT] = 1;
+					__sys_state.input_state[SYS_MOUSE_RIGHT] = 1;
 				}
 				else if (flags & RI_MOUSE_RIGHT_BUTTON_UP) {
-					__sys_state.input_state[MOUSE_RIGHT] = 0;
+					__sys_state.input_state[SYS_MOUSE_RIGHT] = 0;
 				}
 				else if (flags & RI_MOUSE_BUTTON_1_DOWN) {
-					__sys_state.input_state[MOUSE_BUTTON1] = 1;
+					__sys_state.input_state[SYS_MOUSE_BUTTON1] = 1;
 				}
 				else if (flags & RI_MOUSE_BUTTON_1_UP) {
-					__sys_state.input_state[MOUSE_BUTTON1] = 0;
+					__sys_state.input_state[SYS_MOUSE_BUTTON1] = 0;
 				}
 				else if (flags & RI_MOUSE_BUTTON_2_DOWN) {
-					__sys_state.input_state[MOUSE_BUTTON2] = 1;
+					__sys_state.input_state[SYS_MOUSE_BUTTON2] = 1;
 				}
 				else if (flags & RI_MOUSE_BUTTON_2_UP) {
-					__sys_state.input_state[MOUSE_BUTTON2] = 0;
+					__sys_state.input_state[SYS_MOUSE_BUTTON2] = 0;
 				}
 				else if (flags & RI_MOUSE_BUTTON_3_DOWN) {
-					__sys_state.input_state[MOUSE_BUTTON3] = 1;
+					__sys_state.input_state[SYS_MOUSE_BUTTON3] = 1;
 				}
 				else if (flags & RI_MOUSE_BUTTON_3_UP) {
-					__sys_state.input_state[MOUSE_BUTTON3] = 0;
+					__sys_state.input_state[SYS_MOUSE_BUTTON3] = 0;
 				}
 				else if (flags & RI_MOUSE_BUTTON_4_DOWN) {
-					__sys_state.input_state[MOUSE_BUTTON4] = 1;
+					__sys_state.input_state[SYS_MOUSE_BUTTON4] = 1;
 				}
 				else if (flags & RI_MOUSE_BUTTON_4_UP) {
-					__sys_state.input_state[MOUSE_BUTTON4] = 0;
+					__sys_state.input_state[SYS_MOUSE_BUTTON4] = 0;
 				}
 				else if (flags & RI_MOUSE_BUTTON_5_DOWN) {
-					__sys_state.input_state[MOUSE_BUTTON5] = 1;
+					__sys_state.input_state[SYS_MOUSE_BUTTON5] = 1;
 				}
 				else if (flags & RI_MOUSE_BUTTON_5_UP) {
-					__sys_state.input_state[MOUSE_BUTTON5] = 0;
+					__sys_state.input_state[SYS_MOUSE_BUTTON5] = 0;
 				}
 				else if (flags & RI_MOUSE_WHEEL) {
 					__sys_state.mouse.dw += (short)raw->data.mouse.usButtonData / 120;
@@ -764,49 +764,49 @@ LRESULT __stdcall sys_win_proc(HWND window, UINT message, WPARAM wparam, LPARAM 
 				switch (virtual_key) {
 					case VK_INSERT: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD0;
+							virtual_key = SYS_KEY_NUMPAD0;
 					} break;
 					case VK_HOME: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD7;
+							virtual_key = SYS_KEY_NUMPAD7;
 					} break;
 					case VK_END: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD1;
+							virtual_key = SYS_KEY_NUMPAD1;
 					} break;
 					case VK_PRIOR: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD9;
+							virtual_key = SYS_KEY_NUMPAD9;
 					} break;
 					case VK_NEXT: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD3;
+							virtual_key = SYS_KEY_NUMPAD3;
 					} break;
 					case VK_LEFT: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD4;
+							virtual_key = SYS_KEY_NUMPAD4;
 					} break;
 					case VK_RIGHT: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD6;
+							virtual_key = SYS_KEY_NUMPAD6;
 					} break;
 					case VK_UP: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD8;
+							virtual_key = SYS_KEY_NUMPAD8;
 					} break;
 					case VK_DOWN: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD2;
+							virtual_key = SYS_KEY_NUMPAD2;
 					} break;
 					case VK_CLEAR: {
 						if (!e0)
-							virtual_key = KEY_NUMPAD5;
+							virtual_key = SYS_KEY_NUMPAD5;
 					} break;
 				}
 
 #ifndef SYS_NO_ALT_ENTER
-				if (virtual_key == KEY_ENTER) {
-					if (__sys_state.input_state[KEY_ALT] && !__sys_state.input_state[KEY_ENTER] &&
+				if (virtual_key == SYS_KEY_ENTER) {
+					if (__sys_state.input_state[SYS_KEY_ALT] && !__sys_state.input_state[SYS_KEY_ENTER] &&
 						((flags & RI_KEY_BREAK) == 0))
 						sys_toggle_fullscreen();
 				}
@@ -965,7 +965,7 @@ int __stdcall WinMain(HINSTANCE instance, HINSTANCE prev, char *cmd_line, int sh
 	while(__sys_state.running) {
 		t1 = sys_time_now();
 		delta = t1 - t2;
-		__sys_state.dt = t1 - t2;
+		__sys_state.dt = t1 - t2; // WARNING(rayalan): make dt a double?
         __sys_state.mouse.dx = 0;
         __sys_state.mouse.dy = 0;
         __sys_state.mouse.dw = 0;
@@ -983,6 +983,8 @@ int __stdcall WinMain(HINSTANCE instance, HINSTANCE prev, char *cmd_line, int sh
 #ifdef SYS_LOOP_PROC
 		SYS_LOOP_PROC(&__sys_state);
 #endif
+        // TODO(rayalan): waste of mmeory, bit flags weren't working
+        // TODO(rayalan): get that working
 		CopyMemory(__sys_state.input_state + SYS_INPUT_STATE_USED, __sys_state.input_state, SYS_INPUT_STATE_USED);
 
 		HDC device_context = GetDC((HWND)__sys_state.window);
@@ -1043,7 +1045,7 @@ static Sys_Config sys_default_config(void) {
 	default_config.height = 720;
 	default_config.monitor = SYS_MONITOR_PRIMARY;
 	default_config.fullscreen = 0;
-	default_config.title = "Hello, World!";
+	default_config.title = "What a Wonderful World!";
 	return default_config;
 }
 
