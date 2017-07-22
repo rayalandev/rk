@@ -30,6 +30,7 @@
 //          Alternatively you can multiply matrices in reverse order.
 //
 //  VERSION:
+//      0.91 - fix mat4_look_at() bugs
 //      0.90 - push to github needs slerp, nlerp
 //
 //  LICENSE:
@@ -45,11 +46,11 @@
 
 
 #ifndef LINEAR_ALGEBRA_SQRT
-#define LINEAR_ALGEBRA_SQRT(x) sqrt(x)
+#define LINEAR_ALGEBRA_SQRT(x) sqrtf(x)
 #endif /* LINEAR_ALGEBRA_SQRT */
 
 #ifndef LINEAR_ALGEBRA_TAN
-#define LINEAR_ALGEBRA_TAN(x) tan(x)
+#define LINEAR_ALGEBRA_TAN(x) tanf(x)
 #endif /* LINEAR_ALGEBRA_ATAN */
 
 
@@ -353,20 +354,30 @@ LINEAR_ALGEBRA_INLINE Vec2 vec2_scale(const Vec2 a, const float scale) {
 }
 
 LINEAR_ALGEBRA_INLINE float vec2_dot(const Vec2 a, const Vec2 b) {
-    return (a.x * b.x) + (a.y * b.y);
+    float r = 0.0f;
+    r = (a.x * b.x) + (a.y * b.y);
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE float vec2_length2(const Vec2 a) {
-    return vec2_dot(a, a);
+    float r = 0.0f;
+    r = vec2_dot(a, a);
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE float vec2_length(const Vec2 a) {
-    return (float)LINEAR_ALGEBRA_SQRT(vec2_length2(a));
+    float r = 0.0f;
+    r = LINEAR_ALGEBRA_SQRT(vec2_length2(a));
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE Vec2 vec2_normalize(const Vec2 a) {
+    Vec2 r = { 0 };
     float length = vec2_length(a);
-    return vec2_scale(a, 1.0f / length);
+    if(length != 0.0f) { 
+        r = vec2_scale(a, 1.0f / length);
+    }
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE Vec3 vec3(const float a, const float b, const float c) {
@@ -410,21 +421,31 @@ LINEAR_ALGEBRA_INLINE Vec3 vec3_scale(const Vec3 a, const float scale) {
 }
 
 LINEAR_ALGEBRA_INLINE float vec3_dot(const Vec3 a, const Vec3 b) {
-    return (a.x * b.x) + (a.y * b.y) + (a.z + b.z);
+    float r = 0.0f;
+    r = (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE 
 float vec3_length2(const Vec3 a) {
-    return vec3_dot(a, a);
+    float r = 0.0f;
+    r = vec3_dot(a,a);
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE float vec3_length(const Vec3 a) {
-    return (float)LINEAR_ALGEBRA_SQRT(vec3_length2(a));
+    float r = 0.0f;
+    r = LINEAR_ALGEBRA_SQRT(vec3_length2(a));
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE Vec3 vec3_normalize(const Vec3 a) {
+    Vec3 r = { 0 };
     float length = vec3_length(a);
-    return vec3_scale(a, 1.0f / length);
+    if(length != 0.0f) { 
+        r = vec3_scale(a, 1.0f / length);
+    }
+    return r;
 }
 
 /*
@@ -490,20 +511,30 @@ LINEAR_ALGEBRA_INLINE Vec4 vec4_scale(const Vec4 a, const float scale) {
 }
 
 LINEAR_ALGEBRA_INLINE float vec4_dot(const Vec4 a, const Vec4 b) {
-    return (a.x * b.x) + (a.y * b.y) + (a.z + b.z) + (a.w * b.w);
+    float r = 0.0f;
+    r = (a.x * b.x) + (a.y * b.y) + (a.z + b.z) + (a.w * b.w);
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE float vec4_length2(const Vec4 a) {
-    return vec4_dot(a, a);
+    float r = 0.0f;
+    r = vec4_dot(a, a);
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE float vec4_length(const Vec4 a) {
-    return (float)LINEAR_ALGEBRA_SQRT(vec4_length2(a));
+    float r = 0.0f;
+    r = LINEAR_ALGEBRA_SQRT(vec4_length2(a));
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE Vec4 vec4_normalize(const Vec4 a) {
+    Vec4 r = { 0 };
     float length = vec4_length(a);
-    return vec4_scale(a, 1.0f / length);
+    if(length != 0.0f) { 
+        r = vec4_scale(a, 1.0f / length);
+    }
+    return r;
 }
 
 
@@ -565,11 +596,15 @@ LINEAR_ALGEBRA_INLINE Quat quat_mul(const Quat a, const Quat b) {
 }
 
 LINEAR_ALGEBRA_INLINE float quat_length(const Quat a) {
-    return (float)LINEAR_ALGEBRA_SQRT(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+    float r = 0.0f;
+    r = LINEAR_ALGEBRA_SQRT(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE float quat_length2(const Quat a) {
-    return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
+    float r = 0.0f;
+    r = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
+    return r;
 }
 
 LINEAR_ALGEBRA_INLINE Quat quat_normalize(const Quat a) {
@@ -844,7 +879,7 @@ LINEAR_ALGEBRA_INLINE Mat4 mat4_orthographic(const float left, const float right
 
 LINEAR_ALGEBRA_INLINE Mat4 mat4_perspective(const float fov, const float aspect_ratio, const float znear, const float zfar) {
     Mat4 r = { 0 };
-    float tto2 = (float)LINEAR_ALGEBRA_TAN(fov * LINEAR_ALGEBRA_PI_OVER_360);
+    float tto2 = LINEAR_ALGEBRA_TAN(fov * LINEAR_ALGEBRA_PI_OVER_360);
 
     r.e[0][0] = 1.0f / tto2;
     r.e[1][1] = aspect_ratio / tto2;
@@ -999,6 +1034,8 @@ LINEAR_ALGEBRA_INLINE Mat4 mat4_inverse(const Mat4 a) {
 
 LINEAR_ALGEBRA_INLINE Mat4 mat4_look_at(const Vec3 eye, const Vec3 at, const Vec3 up) {
     Mat4 r = { 0 };
+
+    // NOTE(rayalan): 
     Vec3 cam_dir = vec3_normalize(vec3_sub(eye, at));
     Vec3 cam_right = vec3_normalize(vec3_cross(up, cam_dir));
     Vec3 cam_up = vec3_normalize(vec3_cross(cam_dir, cam_right));
@@ -1006,17 +1043,17 @@ LINEAR_ALGEBRA_INLINE Mat4 mat4_look_at(const Vec3 eye, const Vec3 at, const Vec
     r.e[0][0] = cam_right.x;
     r.e[0][1] = cam_right.y;
     r.e[0][2] = cam_right.z;
-    r.e[0][3] = -eye.x * cam_right.x - eye.y * cam_right.y - eye.z * cam_right.z;
+    r.e[0][3] = -vec3_dot(cam_right, eye);
     
     r.e[1][0] = cam_up.x,
     r.e[1][1] = cam_up.y,
     r.e[1][2] = cam_up.z,
-    r.e[1][3] = -eye.x * cam_up.x - eye.y * cam_up.y - eye.z * cam_up.z;
+    r.e[1][3] = -vec3_dot(cam_up, eye);
     
     r.e[2][0] = cam_dir.x;
     r.e[2][1] = cam_dir.y;
     r.e[2][2] = cam_dir.z;
-    r.e[2][3] = -eye.x * cam_dir.x - eye.y * cam_dir.y - eye.z * cam_dir.z;
+    r.e[2][3] = -vec3_dot(cam_dir, eye);
 
     r.e[3][3] = 1.0f;
 
