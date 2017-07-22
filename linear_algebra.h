@@ -16,10 +16,10 @@
 //      #define LINEAR_ALGEBRA_NO_INLINE
 //          disable the default feature of forcing inline on every function
 //      #define LINEAR_ALGEBRA_NO_CRT
-//          stop the #include <math.h> for sqrt, tan
-//      #define LINEAR_ALGEBRA_SQRT(x)
+//          stop the #include <math.h> for sqrtf, tanf
+//      #define LINEAR_ALGEBRA_SQRTF(x)
 //          redefine sqrt() function used by this library
-//      #define LINEAR_ALGEBRA_TAN(x)
+//      #define LINEAR_ALGEBRA_TANF(x)
 //          redefine tan() function used by this library
 //
 //  NOTES:
@@ -30,7 +30,6 @@
 //          Alternatively you can multiply matrices in reverse order.
 //
 //  VERSION:
-//      0.91 - fix mat4_look_at() bugs
 //      0.90 - push to github needs slerp, nlerp
 //
 //  LICENSE:
@@ -45,13 +44,13 @@
 #endif /* LINEAR_MATH_NO_CRT */
 
 
-#ifndef LINEAR_ALGEBRA_SQRT
-#define LINEAR_ALGEBRA_SQRT(x) sqrtf(x)
-#endif /* LINEAR_ALGEBRA_SQRT */
+#ifndef LINEAR_ALGEBRA_SQRTF
+#define LINEAR_ALGEBRA_SQRTF(x) sqrtf(x)
+#endif /* LINEAR_ALGEBRA_SQRTF */
 
-#ifndef LINEAR_ALGEBRA_TAN
-#define LINEAR_ALGEBRA_TAN(x) tanf(x)
-#endif /* LINEAR_ALGEBRA_ATAN */
+#ifndef LINEAR_ALGEBRA_TANF
+#define LINEAR_ALGEBRA_TANF(x) tanf(x)
+#endif /* LINEAR_ALGEBRA_ATANF */
 
 
 #ifdef LINEAR_ALGEBRA_STATIC
@@ -367,7 +366,7 @@ LINEAR_ALGEBRA_INLINE float vec2_length2(const Vec2 a) {
 
 LINEAR_ALGEBRA_INLINE float vec2_length(const Vec2 a) {
     float r = 0.0f;
-    r = LINEAR_ALGEBRA_SQRT(vec2_length2(a));
+    r = LINEAR_ALGEBRA_SQRTF(vec2_length2(a));
     return r;
 }
 
@@ -435,7 +434,7 @@ float vec3_length2(const Vec3 a) {
 
 LINEAR_ALGEBRA_INLINE float vec3_length(const Vec3 a) {
     float r = 0.0f;
-    r = LINEAR_ALGEBRA_SQRT(vec3_length2(a));
+    r = LINEAR_ALGEBRA_SQRTF(vec3_length2(a));
     return r;
 }
 
@@ -524,7 +523,7 @@ LINEAR_ALGEBRA_INLINE float vec4_length2(const Vec4 a) {
 
 LINEAR_ALGEBRA_INLINE float vec4_length(const Vec4 a) {
     float r = 0.0f;
-    r = LINEAR_ALGEBRA_SQRT(vec4_length2(a));
+    r = LINEAR_ALGEBRA_SQRTF(vec4_length2(a));
     return r;
 }
 
@@ -597,7 +596,7 @@ LINEAR_ALGEBRA_INLINE Quat quat_mul(const Quat a, const Quat b) {
 
 LINEAR_ALGEBRA_INLINE float quat_length(const Quat a) {
     float r = 0.0f;
-    r = LINEAR_ALGEBRA_SQRT(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+    r = LINEAR_ALGEBRA_SQRTF(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     return r;
 }
 
@@ -879,7 +878,7 @@ LINEAR_ALGEBRA_INLINE Mat4 mat4_orthographic(const float left, const float right
 
 LINEAR_ALGEBRA_INLINE Mat4 mat4_perspective(const float fov, const float aspect_ratio, const float znear, const float zfar) {
     Mat4 r = { 0 };
-    float tto2 = LINEAR_ALGEBRA_TAN(fov * LINEAR_ALGEBRA_PI_OVER_360);
+    float tto2 = LINEAR_ALGEBRA_TANF(fov * LINEAR_ALGEBRA_PI_OVER_360);
 
     r.e[0][0] = 1.0f / tto2;
     r.e[1][1] = aspect_ratio / tto2;
