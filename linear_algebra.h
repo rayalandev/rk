@@ -30,6 +30,7 @@
 //          Alternatively you can multiply matrices in reverse order.
 //
 //  VERSION:
+//      0.91 - add mat4_ translate, rotate, scale, shear
 //      0.90 - push to github needs slerp, nlerp
 //
 //  LICENSE:
@@ -38,6 +39,14 @@
 #ifndef LINEAR_ALGEBRA_INCLUDE
 #define LINEAR_ALGEBRA_INCLUDE
 
+#ifdef _MSC_VER
+#pragma warning(disable:4201)
+#endif
+
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
+#endif
 
 #ifndef LINEAR_MATH_NO_CRT
 #include <math.h>
@@ -47,6 +56,15 @@
 #ifndef LINEAR_ALGEBRA_SQRTF
 #define LINEAR_ALGEBRA_SQRTF(x) sqrtf(x)
 #endif /* LINEAR_ALGEBRA_SQRTF */
+
+
+#ifndef LINEAR_ALGEBRA_COSF
+#define LINEAR_ALGEBRA_COSF(x) cosf(x)
+#endif /* LINEAR_ALGEBRA_COSF */
+
+#ifndef LINEAR_ALGEBRA_SINF
+#define LINEAR_ALGEBRA_SINF(x) sinf(x)
+#endif /* LINEAR_ALGEBRA_SINF */
 
 #ifndef LINEAR_ALGEBRA_TANF
 #define LINEAR_ALGEBRA_TANF(x) tanf(x)
@@ -69,7 +87,7 @@
 
 
 #define LINEAR_ALGEBRA_PI_OVER_360 0.00872664625f
-
+#define LINEAR_ALGEBRA_PI_OVER_180 0.01745329251f
 
 typedef union Vec2 {
     struct {
@@ -307,6 +325,15 @@ LINEAR_ALGEBRA_DEF Mat4 mat4_diagonal(const float d);
 LINEAR_ALGEBRA_DEF Mat4 mat4_identity(void);
 LINEAR_ALGEBRA_DEF Mat4 mat4_orthographic(const float left, const float right, const float bottom, const float top, const float znear, const float zfar);
 LINEAR_ALGEBRA_DEF Mat4 mat4_perspective(const float fov, const float aspect_ratio, const float znear, const float zfar);
+LINEAR_ALGEBRA_DEF Mat4 mat4_translate(const Vec3 a);
+LINEAR_ALGEBRA_DEF Mat4 mat4_translatef(const float x, const float y, const float z);
+LINEAR_ALGEBRA_DEF Mat4 mat4_rotate(const float degrees, const Vec3 axis);
+LINEAR_ALGEBRA_DEF Mat4 mat4_rotate_x(const float degrees);
+LINEAR_ALGEBRA_DEF Mat4 mat4_rotate_y(const float degrees);
+LINEAR_ALGEBRA_DEF Mat4 mat4_rotate_z(const float degrees);
+LINEAR_ALGEBRA_DEF Mat4 mat4_scale(const Vec3 a);
+LINEAR_ALGEBRA_DEF Mat4 mat4_scalef(const float x, const float y, const float z);
+LINEAR_ALGEBRA_DEF Mat4 mat4_shear(const float s);
 LINEAR_ALGEBRA_DEF Mat4 mat4_add(const Mat4 a, const Mat4 b);
 LINEAR_ALGEBRA_DEF Mat4 mat4_sub(const Mat4 a, const Mat4 b);
 LINEAR_ALGEBRA_DEF Mat4 mat4_mul(const Mat4 a, const Mat4 b);
@@ -889,6 +916,103 @@ LINEAR_ALGEBRA_INLINE Mat4 mat4_perspective(const float fov, const float aspect_
     return r;
 }
 
+LINEAR_ALGEBRA_INLINE Mat4 mat4_translate(const Vec3 a) {
+    Mat4 r = mat4_identity();
+    r.e[0][3] = a.x;
+    r.e[1][3] = a.y;
+    r.e[2][3] = a.z;
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_translatef(const float x, const float y, const float z) {
+    Mat4 r = mat4_identity();
+    r.e[0][3] = x;
+    r.e[1][3] = y;
+    r.e[2][3] = z;
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_rotate(const float degrees, const Vec3 axis) {
+    Mat4 r = mat4_identity();
+    Vec3 a = vec3_normalize(axis);
+    
+    float sin_theta = LINEAR_ALGEBRA_SINF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    float cos_theta = LINEAR_ALGEBRA_COSF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    float one_minus_cos = 1.0f - cos_theta;
+
+    r.e[0][0] = cos_theta + a.x * a.x * one_minus_cos;
+    r.e[0][1] = a.x * a.y * one_minus_cos - a.z * sin_theta;
+    r.e[0][2] = a.x * a.z * one_minus_cos + a.y * sin_theta;
+    
+    r.e[1][0] = a.y * a.x * one_minus_cos + a.z * sin_theta;
+    r.e[1][1] = cos_theta + a.y * a.y * one_minus_cos;
+    r.e[1][2] = a.y * a.z * one_minus_cos - a.x * sin_theta;
+
+    r.e[2][0] = a.z * a.x * one_minus_cos - a.y * sin_theta;
+    r.e[2][1] = a.z * a.y * one_minus_cos + a.x * sin_theta;
+    r.e[2][2] = cos_theta + a.z * a.z * one_minus_cos;
+
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_rotate_x(const float degrees) {
+    Mat4 r = mat4_identity();
+
+    r.e[1][1] = LINEAR_ALGEBRA_COSF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    r.e[2][2] = r.e[1][1];
+
+    r.e[2][1] = LINEAR_ALGEBRA_SINF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    r.e[1][2] = -r.e[2][1];
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_rotate_y(const float degrees) {
+    Mat4 r = mat4_identity();
+    
+    r.e[0][0] = LINEAR_ALGEBRA_COSF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    r.e[2][2] = r.e[0][0];
+
+    r.e[0][2] = LINEAR_ALGEBRA_SINF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    r.e[2][0] = -r.e[0][2];
+
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_rotate_z(const float degrees) {
+    Mat4 r = mat4_identity();
+    
+    r.e[0][0] = LINEAR_ALGEBRA_COSF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    r.e[1][1] = r.e[0][0];
+
+    r.e[1][0] = LINEAR_ALGEBRA_SINF(degrees * LINEAR_ALGEBRA_PI_OVER_180);
+    r.e[0][1] = -r.e[1][0];
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_scale(const Vec3 a) { 
+    Mat4 r = { 0 };
+    r.e[0][0] = a.x;
+    r.e[1][1] = a.y;
+    r.e[2][2] = a.z;
+    r.e[3][3] = 1.0f;
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_scalef(const float x, const float y, const float z) {
+    Mat4 r = { 0 };
+    r.e[0][0] = x;
+    r.e[1][1] = y;
+    r.e[2][2] = z;
+    r.e[3][3] = 1.0f;
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE Mat4 mat4_shear(const float s) {
+    Mat4 r = mat4_identity();
+    r.e[0][2] = s;
+    return r;
+}
+
 LINEAR_ALGEBRA_INLINE Mat4 mat4_add(const Mat4 a, const Mat4 b) {
     Mat4 r = { 0 };
     int i, j;
@@ -947,8 +1071,8 @@ LINEAR_ALGEBRA_INLINE Mat4 mat4_scale(const Mat4 a, const float scale) {
 }
 
 LINEAR_ALGEBRA_INLINE float mat4_determinant(const Mat4 a) {
-    return (
-          a.e[0][0]*a.e[1][1]*a.e[2][2]*a.e[3][3] 
+    float r = 0.0f;
+    r =   a.e[0][0]*a.e[1][1]*a.e[2][2]*a.e[3][3] 
         + a.e[0][0]*a.e[1][2]*a.e[2][3]*a.e[3][1]
         + a.e[0][0]*a.e[1][3]*a.e[2][1]*a.e[3][2]
         + a.e[0][1]*a.e[1][0]*a.e[2][3]*a.e[3][2]
@@ -971,8 +1095,8 @@ LINEAR_ALGEBRA_INLINE float mat4_determinant(const Mat4 a) {
         - a.e[0][2]*a.e[1][3]*a.e[2][1]*a.e[3][0]
         - a.e[0][3]*a.e[1][0]*a.e[2][1]*a.e[3][2]
         - a.e[0][3]*a.e[1][1]*a.e[2][2]*a.e[3][0]
-        - a.e[0][3]*a.e[1][2]*a.e[2][0]*a.e[3][1]
-    );
+        - a.e[0][3]*a.e[1][2]*a.e[2][0]*a.e[3][1];
+    return r;
 }
 
 // NOTE(rayalan): this is the lazy slow way to do this
