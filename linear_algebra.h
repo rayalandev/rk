@@ -30,6 +30,7 @@
 //          Alternatively you can multiply matrices in reverse order.
 //
 //  VERSION:
+//      0.92 - quaternion slerp, nlerp
 //      0.91 - add mat4_ translate, rotate, scale, shear
 //      0.90 - push to github needs slerp, nlerp
 //
@@ -70,6 +71,9 @@
 #define LINEAR_ALGEBRA_TANF(x) tanf(x)
 #endif /* LINEAR_ALGEBRA_ATANF */
 
+#ifndef LINEAR_ALGEBRA_ACOSF
+#define LINEAR_ALGEBRA_ACOSF(x) acosf(x)
+#endif /* LINEAR_ALGEBRA_ACOSF */
 
 #ifdef LINEAR_ALGEBRA_STATIC
 #define LINEAR_ALGEBRA_DEF static
@@ -289,11 +293,14 @@ LINEAR_ALGEBRA_DEF Quat quat_identity(void);
 LINEAR_ALGEBRA_DEF Quat quat_add(const Quat a, const Quat b);
 LINEAR_ALGEBRA_DEF Quat quat_sub(const Quat a, const Quat b);
 LINEAR_ALGEBRA_DEF Quat quat_mul(const Quat a, const Quat b);
-LINEAR_ALGEBRA_DEF Quat quat_div(const Quat a, const Quat b);
-LINEAR_ALGEBRA_DEF float quat_length(const Quat a);
+LINEAR_ALGEBRA_DEF Quat quat_scale(const Quat a, const float scale);
+LINEAR_ALGEBRA_DEF float quat_dot(const Quat a, const Quat b);
 LINEAR_ALGEBRA_DEF float quat_length2(const Quat a);
+LINEAR_ALGEBRA_DEF float quat_length(const Quat a);
 LINEAR_ALGEBRA_DEF Quat quat_normalize(const Quat a);
 LINEAR_ALGEBRA_DEF Quat quat_inverse(const Quat a);
+LINEAR_ALGEBRA_DEF Quat quat_slerp(const Quat a, const Quat b, const float t);
+LINEAR_ALGEBRA_DEF Quat quat_nlerp(const Quat a, const Quat b, const float t);
 
 LINEAR_ALGEBRA_DEF Mat2 mat2(void);
 LINEAR_ALGEBRA_DEF Mat2 mat2_from_vec2(const Vec2 a, const Vec2 b);
@@ -621,17 +628,33 @@ LINEAR_ALGEBRA_INLINE Quat quat_mul(const Quat a, const Quat b) {
     return r;
 }
 
-LINEAR_ALGEBRA_INLINE float quat_length(const Quat a) {
+LINEAR_ALGEBRA_INLINE Quat quat_scale(const Quat a, const float scale) {
+    Quat r = { 0 };
+    r.x = scale * a.x;
+    r.y = scale * a.y;
+    r.z = scale * a.z;
+    r.w = scale * a.w;
+    return r;
+}
+
+LINEAR_ALGEBRA_INLINE float quat_dot(const Quat a, const Quat b) {
     float r = 0.0f;
-    r = LINEAR_ALGEBRA_SQRTF(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+    r = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     return r;
 }
 
 LINEAR_ALGEBRA_INLINE float quat_length2(const Quat a) {
     float r = 0.0f;
-    r = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
+    r = quat_dot(a, a);
     return r;
 }
+
+LINEAR_ALGEBRA_INLINE float quat_length(const Quat a) {
+    float r = 0.0f;
+    r = LINEAR_ALGEBRA_SQRTF(quat_length2(a));
+    return r;
+}
+
 
 LINEAR_ALGEBRA_INLINE Quat quat_normalize(const Quat a) {
     Quat r = { 0 };
@@ -645,12 +668,35 @@ LINEAR_ALGEBRA_INLINE Quat quat_normalize(const Quat a) {
 
 LINEAR_ALGEBRA_INLINE Quat quat_inverse(const Quat a) {
     Quat r = quat_conjugate(a);
-    float s = 1.0f / (a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+    float s = 1.0f / quat_length2(a);
     r.x *= s;
     r.y *= s;
     r.z *= s;
     r.w *= s;
     return r;
+}
+
+LINEAR_ALGEBRA_DEF Quat quat_slerp(const Quat a, const Quat b, const float t) { 
+    Quat r = { 0 };
+    float cos_theta = quat_dot(a, b);
+    float phi = LINEAR_ALGEBRA_ACOSF(cos_theta);
+    float sin_phi = LINEAR_ALGEBRA_SINF(phi);
+    float s1 = LINEAR_ALGEBRA_SINF(phi * (1.0f - t)) / sin_phi;
+    float s2 = LINEAR_ALGEBRA_SINF(phi * t) / sin_phi;
+    Quat q1 = quat_scale(a, s1);
+    Quat q2 = quat_scale(b, s2);
+    return quat_add(q1, q2);
+}
+
+LINEAR_ALGEBRA_DEF Quat quat_nlerp(const Quat a, const Quat b, const float t) {
+    Quat r = { 0 };
+
+    r.x = a.x + t * (b.x - a.x);
+    r.y = a.y + t * (b.y - a.y);
+    r.z = a.z + t * (b.z - a.z);
+    r.w = a.w + t * (b.w - a.w);
+
+    return quat_normalize(r);
 }
 
 LINEAR_ALGEBRA_INLINE Mat2 mat2(void) {
