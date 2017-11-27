@@ -2,13 +2,19 @@
 // this library is too wip for documentation
 // c99 features used in this library
 // TODO(rayalan): 
+//  use bit manipulation to cut down keyboard input size
+//  load dlls/*.so
 //	system info
 //		ram
-//		cpu info / features
+//		cpu info / features (simd / etc)
 //		display names / etc
 //		peripheral names/etc
-//	threads (maybe)
+//	threads / job api
+//  mutexes
+//  atomics
+//  semaphores
 //	osx
+//	linux
 #ifndef SYS_INCLUDE
 #define SYS_INCLUDE
 #ifdef __cplusplus
@@ -273,6 +279,18 @@ typedef struct Sys_File {
 	uint64_t size;
 } Sys_File;
 
+typedef struct Sys_Mutex {
+#ifdef SYS_WINDOWS
+    CRITICAL_SECTION section;
+#endif /* SYS_WINDOWS */
+} Sys_Mutex;
+
+typedef struct Sys_Semaphore {
+#ifdef SYS_WINDOWS
+	void *ptr;
+#endif /* SYS_WINDOWS */
+} Sys_Semaphore;
+
 typedef struct Sys_Config {
 	int width, height;
 	int monitor;
@@ -323,12 +341,43 @@ SYS_DEF void sys_file_close(Sys_File file);
 SYS_DEF uint64_t sys_file_read(Sys_File file, uint64_t offset, uint64_t size, void *destination);
 SYS_DEF uint64_t sys_file_write(Sys_File file, uint64_t offset, uint64_t size, void *source);
 
+// TODO(rayalan): more virtual memory work
 SYS_DEF Sys_Memory sys_alloc(size_t size, uint64_t flags);
 SYS_DEF void sys_free(Sys_Memory memory);
 
+// mutex
+SYS_DEF inline void sys_mutex_init(Sys_Mutex *mutex);
+SYS_DEF inline void sys_mutex_lock(Sys_Mutex *mutex);
+SYS_DEF inline int sys_mutex_try_lock(Sys_Mutex *mutex);
+SYS_DEF inline void sys_mutex_unlock(Sys_Mutex *mutex);
+SYS_DEF inline void sys_mutex_destroy(Sys_Mutex *mutex);
+
+// semaphore
+SYS_DEF inline void sys_semaphore_init(Sys_Semaphore *semaphore, uint32_t initial_value);
+SYS_DEF inline void sys_semaphore_signal(Sys_Semaphore *semaphore);
+SYS_DEF inline void sys_semaphore_wait(Sys_Semaphore *semaphore);
+SYS_DEF inline void sys_semaphore_destroy(Sys_Semaphore *semaphore);
+
+// atomic operations
+SYS_DEF void sys_atomic32_inc(volatile int32_t *atomic);
+SYS_DEF void sys_atomic32_dec(volatile int32_t *atomic);
+SYS_DEF void sys_atomic32_add(volatile int32_t *atomic, int32_t by);
+SYS_DEF void sys_atomic32_sub(volatile int32_t *atomic, int32_t by);
+SYS_DEF void sys_atomic32_cas(volatile int32_t *dest, int32_t old_value, int32_t new_value);
+
+SYS_DEF void sys_atomic64_inc(volatile int64_t *atomic);
+SYS_DEF void sys_atomic64_dec(volatile int64_t *atomic);
+SYS_DEF void sys_atomic64_add(volatile int64_t *atomic, int64_t by);
+SYS_DEF void sys_atomic64_sub(volatile int64_t *atomic, int64_t by);
+SYS_DEF void sys_atomic64_cas(volatile int64_t *dest, int64_t old_value, int64_t new_value);
+
+SYS_DEF void sys_atomic_cas_ptr(void * volatile *dest, void *old_value, void *new_value);
+
+// input 
 SYS_DEF inline unsigned char sys_key_pressed(const unsigned char key);
 SYS_DEF inline unsigned char sys_key_released(const unsigned char key);
 SYS_DEF inline unsigned char sys_key_down(const unsigned char key);
+
 
 static Sys_Config sys_default_config(void);
 #ifdef SYS_INIT_PROC
@@ -343,11 +392,14 @@ void SYS_LOOP_PROC(Sys_State *sys);
 void SYS_QUIT_PROC(Sys_State *sys);
 #endif
 
+//=============================================================================
 // 
 // 
 //		IMPLEMENTATION 
 // 
 // 
+//=============================================================================
+
 #ifdef SYS_IMPLEMENTATION
 #define SYS_IMPLEMENTATION
 
@@ -507,8 +559,90 @@ SYS_DEF uint64_t sys_file_write(Sys_File file, uint64_t offset, uint64_t size, v
 	return (uint64_t)bytes_written;
 }
 
+// TODO(rayalan): job system, semaphores, memory barriers
+SYS_DEF inline void sys_mutex_init(Sys_Mutex *mutex) {
+    InitializeCriticalSection(&mutex->section);
+}
+
+SYS_DEF inline void sys_mutex_lock(Sys_Mutex *mutex) {
+    EnterCriticalSection(&mutex->section);
+}
+
+SYS_DEF inline int sys_mutex_try_lock(Sys_Mutex *mutex) {
+    return TryEnterCriticalSection(&mutex->section);
+}
+
+SYS_DEF inline void sys_mutex_unlock(Sys_Mutex *mutex) {
+    LeaveCriticalSection(&mutex->section);
+}
+
+SYS_DEF inline void sys_mutex_destroy(Sys_Mutex *mutex) {
+    DeleteCriticalSection(&mutex->section);
+}
+
+SYS_DEF inline void sys_semaphore_init(Sys_Semaphore *semaphore, uint32_t initial_value) {
+    semaphore->ptr = CreateSemaphore(NULL, (long)initial_value, 0xFFFFFFFF, NULL);
+}
+
+
+SYS_DEF inline void sys_semaphore_signal(Sys_Semaphore *semaphore) {
+    ReleaseSemaphore(semaphore->ptr, 1, NULL);
+}
+
+SYS_DEF inline void sys_semaphore_wait(Sys_Semaphore *semaphore) {
+    WaitForSingleObject(semaphore->ptr, INFINITE);
+}
+
+SYS_DEF inline void sys_semaphore_destroy(Sys_Semaphore *semaphore) {
+    CloseHandle(semaphore->ptr);
+}
+
+SYS_DEF inline void sys_atomic32_inc(volatile int32_t *atomic) { 
+    InterlockedIncrement((volatile long *)atomic);
+}
+
+SYS_DEF inline void sys_atomic32_dec(volatile int32_t *atomic) {
+    InterlockedDecrement((volatile long *)atomic);
+}
+
+SYS_DEF inline void sys_atomic32_add(volatile int32_t *atomic, int32_t by) {
+    InterlockedExchangeAdd((volatile long *)atomic, (long)by); 
+}
+
+SYS_DEF inline void sys_atomic32_sub(volatile int32_t *atomic, int32_t by) {
+    InterlockedExchangeSubtract((volatile unsigned long *)atomic, (unsigned long)by);
+}
+
+SYS_DEF inline void sys_atomic32_cas(volatile int32_t *dest, int32_t old_value, int32_t new_value) {
+    InterlockedCompareExchange((volatile long *)dest, (long)new_value, (long)old_value); 
+}
+
+SYS_DEF inline void sys_atomic64_inc(volatile int64_t *atomic) {
+    InterlockedIncrement64(atomic);
+}
+
+SYS_DEF inline void sys_atomic64_dec(volatile int64_t *atomic) {
+    InterlockedDecrement64(atomic);
+}
+
+SYS_DEF inline void sys_atomic64_add(volatile int64_t *atomic, int64_t by) {
+    InterlockedExchangeAdd64(atomic, by);
+}
+
+SYS_DEF inline void sys_atomic64_sub(volatile int64_t *atomic, int64_t by) {
+    InterlockedExchangeAdd64(atomic, -by);
+}
+
+SYS_DEF inline void sys_atomic64_cas(volatile int64_t *dest, int64_t old_value, int64_t new_value) {
+    InterlockedCompareExchange64(dest, new_value, old_value);
+}
+
+SYS_DEF inline void sys_atomic_cas_ptr(void * volatile *dest, void *old_value, void *new_value) {
+	InterlockedCompareExchangePointer(dest, new_value, old_value);
+}
+
 SYS_DEF void sys_sleep(int ms) {
-	Sleep(ms);
+	Sleep((DWORD)ms);
 }
 
 SYS_DEF double sys_time_now(void) {
@@ -888,7 +1022,7 @@ char **CommandLineToArgvA(char *cmd_line, int *argc){
         _argv[j] = '\0';
         argv[_argc] = NULL;
 
-        (*argc) = _argc;
+        (*argc) = (int)_argc;
         return argv;
 }
 
