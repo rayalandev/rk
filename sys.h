@@ -27,6 +27,13 @@ extern "C" {
 
 #if defined(_WIN32) || defined(_WIN64)
 	#define SYS_WINDOWS
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+    #define NOMINMAX 1
+    #endif 
+    #include <windows.h>
 #elif defined(__APPLE__) && defined(__MACH__)
 	#define SYS_OSX
 #elif defined(__linux__)
@@ -300,6 +307,11 @@ typedef struct Sys_Config {
 	unsigned char color_bits, depth_bits;
 } Sys_Config;
 
+typedef struct Sys_Rand {
+	uint32_t state;
+	uint64_t step;
+} Sys_Rand;
+
 typedef struct Sys_State {
 	// window information
 	void *window;
@@ -342,6 +354,7 @@ SYS_DEF uint64_t sys_file_read(Sys_File file, uint64_t offset, uint64_t size, vo
 SYS_DEF uint64_t sys_file_write(Sys_File file, uint64_t offset, uint64_t size, void *source);
 
 // TODO(rayalan): more virtual memory work
+// TODO(rayalan): make these thread safe using critical sections
 SYS_DEF Sys_Memory sys_alloc(size_t size, uint64_t flags);
 SYS_DEF void sys_free(Sys_Memory memory);
 
@@ -359,6 +372,7 @@ SYS_DEF inline void sys_semaphore_wait(Sys_Semaphore *semaphore);
 SYS_DEF inline void sys_semaphore_destroy(Sys_Semaphore *semaphore);
 
 // atomic operations
+// TODO(rayalan): the returns on these are wrong
 SYS_DEF void sys_atomic32_inc(volatile int32_t *atomic);
 SYS_DEF void sys_atomic32_dec(volatile int32_t *atomic);
 SYS_DEF void sys_atomic32_add(volatile int32_t *atomic, int32_t by);
@@ -404,14 +418,6 @@ void SYS_QUIT_PROC(Sys_State *sys);
 #define SYS_IMPLEMENTATION
 
 #ifdef SYS_WINDOWS
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX 1
-#endif 
-#include <windows.h>
 
 #ifdef SYS_OPENGL
 #include <gl/gl.h>
@@ -610,7 +616,7 @@ SYS_DEF inline void sys_atomic32_add(volatile int32_t *atomic, int32_t by) {
 }
 
 SYS_DEF inline void sys_atomic32_sub(volatile int32_t *atomic, int32_t by) {
-    InterlockedExchangeSubtract((volatile unsigned long *)atomic, (unsigned long)by);
+    InterlockedExchangeAdd((volatile long *)atomic, (long)-by);
 }
 
 SYS_DEF inline void sys_atomic32_cas(volatile int32_t *dest, int32_t old_value, int32_t new_value) {
@@ -733,6 +739,7 @@ SYS_DEF void sys_set_window_params(int width, int height, int monitor, int fulls
 }
 
 static void sys_create_gl_context(void) {
+#ifdef SYS_OPENGL
 	HDC device_context = GetDC((HWND)__sys_state.window);
 	HGLRC share_context = 0; // todo(rayalan): do something with this?
 
@@ -779,6 +786,7 @@ static void sys_create_gl_context(void) {
    	wglMakeCurrent(device_context, (HGLRC)__sys_state.gfx_context);
    	wglDeleteContext(temp_context);
 	ReleaseDC((HWND)__sys_state.window, device_context);
+#endif /* SYS_OPENGL */
 }
 
 LRESULT __stdcall sys_win_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
