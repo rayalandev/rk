@@ -344,7 +344,6 @@ LINEAR_ALGEBRA_DEF Mat4 mat4_shear(const float s);
 LINEAR_ALGEBRA_DEF Mat4 mat4_add(const Mat4 a, const Mat4 b);
 LINEAR_ALGEBRA_DEF Mat4 mat4_sub(const Mat4 a, const Mat4 b);
 LINEAR_ALGEBRA_DEF Mat4 mat4_mul(const Mat4 a, const Mat4 b);
-LINEAR_ALGEBRA_DEF Mat4 mat4_scale(const Mat4 a, const float s);
 LINEAR_ALGEBRA_DEF Mat4 mat4_transpose(const Mat4 a);
 LINEAR_ALGEBRA_DEF float mat4_determinant(const Mat4 a);
 LINEAR_ALGEBRA_DEF Mat4 mat4_inverse(const Mat4 a);
@@ -676,6 +675,7 @@ LINEAR_ALGEBRA_INLINE Quat quat_inverse(const Quat a) {
     return r;
 }
 
+// TODO(rayalan): wip
 LINEAR_ALGEBRA_DEF Quat quat_slerp(const Quat a, const Quat b, const float t) { 
     Quat r = { 0 };
     float cos_theta = quat_dot(a, b);
