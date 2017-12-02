@@ -338,12 +338,13 @@ LINEAR_ALGEBRA_DEF Mat4 mat4_rotate(const float degrees, const Vec3 axis);
 LINEAR_ALGEBRA_DEF Mat4 mat4_rotate_x(const float degrees);
 LINEAR_ALGEBRA_DEF Mat4 mat4_rotate_y(const float degrees);
 LINEAR_ALGEBRA_DEF Mat4 mat4_rotate_z(const float degrees);
-LINEAR_ALGEBRA_DEF Mat4 mat4_scale(const Vec3 a);
+LINEAR_ALGEBRA_DEF Mat4 mat4_scale_vec3(const Vec3 a);
 LINEAR_ALGEBRA_DEF Mat4 mat4_scalef(const float x, const float y, const float z);
 LINEAR_ALGEBRA_DEF Mat4 mat4_shear(const float s);
 LINEAR_ALGEBRA_DEF Mat4 mat4_add(const Mat4 a, const Mat4 b);
 LINEAR_ALGEBRA_DEF Mat4 mat4_sub(const Mat4 a, const Mat4 b);
 LINEAR_ALGEBRA_DEF Mat4 mat4_mul(const Mat4 a, const Mat4 b);
+LINEAR_ALGEBRA_DEF Mat4 mat4_scale(const Mat4 a, const float s);
 LINEAR_ALGEBRA_DEF Mat4 mat4_transpose(const Mat4 a);
 LINEAR_ALGEBRA_DEF float mat4_determinant(const Mat4 a);
 LINEAR_ALGEBRA_DEF Mat4 mat4_inverse(const Mat4 a);
@@ -677,7 +678,6 @@ LINEAR_ALGEBRA_INLINE Quat quat_inverse(const Quat a) {
 
 // TODO(rayalan): wip
 LINEAR_ALGEBRA_DEF Quat quat_slerp(const Quat a, const Quat b, const float t) { 
-    Quat r = { 0 };
     float cos_theta = quat_dot(a, b);
     float phi = LINEAR_ALGEBRA_ACOSF(cos_theta);
     float sin_phi = LINEAR_ALGEBRA_SINF(phi);
@@ -1035,7 +1035,7 @@ LINEAR_ALGEBRA_INLINE Mat4 mat4_rotate_z(const float degrees) {
     return r;
 }
 
-LINEAR_ALGEBRA_INLINE Mat4 mat4_scale(const Vec3 a) { 
+LINEAR_ALGEBRA_INLINE Mat4 mat4_scale_vec3(const Vec3 a) { 
     Mat4 r = { 0 };
     r.e[0][0] = a.x;
     r.e[1][1] = a.y;
@@ -1148,7 +1148,7 @@ LINEAR_ALGEBRA_INLINE float mat4_determinant(const Mat4 a) {
 // NOTE(rayalan): this is the lazy slow way to do this
 LINEAR_ALGEBRA_INLINE Mat4 mat4_inverse(const Mat4 a) {
     Mat4 r = { 0 };
-    double d = mat4_determinant(a);
+    float d = mat4_determinant(a);
 
     r.e[0][0] =    a.e[1][2]*a.e[2][3]*a.e[3][1] + a.e[1][3]*a.e[2][1]*a.e[3][2] + a.e[1][1]*a.e[2][2]*a.e[3][3];
     r.e[0][0] += - a.e[1][3]*a.e[2][2]*a.e[3][1] - a.e[1][1]*a.e[2][3]*a.e[3][2] - a.e[1][2]*a.e[2][1]*a.e[3][3];
