@@ -823,14 +823,15 @@ LRESULT __stdcall sys_win_proc(HWND window, UINT message, WPARAM wparam, LPARAM 
 			__sys_state.focused = 0;
 		} break;
 		case WM_INPUT: {
-			UINT size;
-			static BYTE buffer[40];
-			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, (LPVOID)buffer, &size, sizeof(RAWINPUTHEADER));
-			RAWINPUT* raw = (RAWINPUT*)buffer;
-			if (raw->header.dwType == RIM_TYPEMOUSE) {
-				__sys_state.mouse.dx += (int)raw->data.mouse.lLastX;
-				__sys_state.mouse.dy += (int)raw->data.mouse.lLastY;
-				int flags = raw->data.mouse.usButtonFlags;
+			RAWINPUT buffer;
+			UINT size = sizeof(buffer);
+		
+			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, &buffer, &size, sizeof(RAWINPUTHEADER));
+
+			if (buffer.header.dwType == RIM_TYPEMOUSE) {
+				__sys_state.mouse.dx += (int)buffer.data.mouse.lLastX;
+				__sys_state.mouse.dy += (int)buffer.data.mouse.lLastY;
+				int flags = buffer.data.mouse.usButtonFlags;
 
 				if (flags & RI_MOUSE_LEFT_BUTTON_DOWN) {
 					__sys_state.input_state[SYS_MOUSE_LEFT] = 1;
@@ -881,13 +882,13 @@ LRESULT __stdcall sys_win_proc(HWND window, UINT message, WPARAM wparam, LPARAM 
 					__sys_state.input_state[SYS_MOUSE_BUTTON5] = 0;
 				}
 				else if (flags & RI_MOUSE_WHEEL) {
-					__sys_state.mouse.dw += (short)raw->data.mouse.usButtonData / 120;
+					__sys_state.mouse.dw += (short)buffer.data.mouse.usButtonData / 120;
 				}
 			}
-			else if (raw->header.dwType == RIM_TYPEKEYBOARD) {
-				UINT virtual_key = raw->data.keyboard.VKey;
-				UINT scan_code = raw->data.keyboard.MakeCode;
-				UINT flags = raw->data.keyboard.Flags;
+			else if (buffer.header.dwType == RIM_TYPEKEYBOARD) {
+				UINT virtual_key = buffer.data.keyboard.VKey;
+				UINT scan_code = buffer.data.keyboard.MakeCode;
+				UINT flags = buffer.data.keyboard.Flags;
 				const int e0 = ((flags & RI_KEY_E0) != 0);
 				const int e1 = ((flags & RI_KEY_E1) != 0);
 
